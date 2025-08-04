@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Runner Game</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<h1>Runner Game</h1>
+<h3>Press Spacebar or Tap Jump Button</h3>
+<button id="startBtn">Start Game</button>
+<button id="restartBtn">Restart Game</button>
+<canvas id="gameCanvas" width="800" height="300"></canvas>
+<button id="jumpBtn">Jump</button> <!-- ✅ New Jump Button -->
+
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+const startBtn = document.getElementById("startBtn");
+const restartBtn = document.getElementById("restartBtn");
+const jumpBtn = document.getElementById("jumpBtn"); // ✅ Grab the Jump Button
+
+let isGameRunning = false;
+let isGameOver = false;
+let score = 0;
+let animationId = null;
+let obstacles = [];
+
+const player = {
+  x: 50,
+  y: 230,
+  width: 50,
+  height: 50,
+  color: "green",
+  dy: 0,
+  gravity: 0.7,
+  jumpPower: -12,
+  grounded: true,
+  update() {
+    this.dy += this.gravity;
+    this.y += this.dy;
+    if (this.y > 230) {
+      this.y = 230;
+      this.dy = 0;
+      this.grounded = true;
+    }
+  },
+  draw() {
+    ctx.fillStyle = this.color;
+    ctx.fillRect(this.x, this.y, this.width, this.height);
+  },
+  jump() {
+    if (this.grounded) {
+      this.dy = this.jumpPower;
+      this.grounded = false;
+    }
+  }
+};
+
+function createObstacle() {
+  const obstacle = {
+    x: canvas.width,
+    y: 250,
+    width: 20 + Math.random() * 30,
+    height: 50,
+    color: "red",
+    speed: 6,
+    update() {
+      this.x -= this.speed;
+    },
+    draw() {
+      ctx.fillStyle = this.color;
+      ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+  };
+  obstacles.push(obstacle);
+}
+
+function checkCollision(a, b) {
+  return (
+    a.x < b.x + b.width &&
+    a.x + a.width > b.x &&
+    a.y < b.y + b.height &&
+    a.y + a.height > b.y
+  );
+}
+
+function resetGame() {
+  isGameRunning = false;
+  isGameOver = false;
+  score = 0;
+  obstacles = [];
+  player.y = 230;
+  player.dy = 0;
+  player.grounded = true;
+  restartBtn.style.display = "none";
+  startBtn.style.display = "inline-block";
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function gameLoop() {
+  if (!isGameRunning) return;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  player.update();
+  player.draw();
+
+  for (let i = obstacles.length - 1; i >= 0; i--) {
+    const obs = obstacles[i];
+    obs.update();
+    obs.draw();
+
+    if (checkCollision(player, obs)) {
+      isGameOver = true;
+      isGameRunning = false;
+      restartBtn.style.display = "inline-block";
+      cancelAnimationFrame(animationId);
+      ctx.fillStyle = "black";
+      ctx.font = "32px sans-serif";
+      ctx.fillText("Game Over! Score: " + score, 250, 150);
+      return;
+    }
+
+    if (obs.x + obs.width < 0) {
+      obstacles.splice(i, 1);
+      score++;
+    }
+  }
+
+  ctx.fillStyle = "black";
+  ctx.font = "20px sans-serif";
+  ctx.fillText("Score: " + score, 10, 30);
+
+  animationId = requestAnimationFrame(gameLoop);
+}
+
+let obstacleInterval;
+function startGame() {
+  isGameRunning = true;
+  isGameOver = false;
+  score = 0;
+  obstacles = [];
+  player.y = 230;
+  player.dy = 0;
+  player.grounded = true;
+  startBtn.style.display = "none";
+  restartBtn.style.display = "none";
+
+  obstacleInterval = setInterval(() => {
+    if (isGameRunning) createObstacle();
+  }, 1500 + Math.random() * 1000);
+
+  gameLoop();
+}
+
+startBtn.addEventListener("click", () => {
+  startGame();
+});
+
+restartBtn.addEventListener("click", () => {
+  resetGame();
+});
+
+// ✅ Jump Button click = same as spacebar
+jumpBtn.addEventListener("click", () => {
+  if (isGameRunning) {
+    player.jump();
+  }
+});
+
+window.addEventListener("keydown", (e) => {
+  if (e.code === "Space" && isGameRunning) {
+    player.jump();
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+body {
+  background-color: #1e272e;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  padding: 20px;
+  font-family: 'Press Start 2P', cursive;
+}
+
+/* Heading */
+h1 {
+  margin-top: 20px;
+  font-size: 36px;
+  color: rgb(20, 139, 185);
+  text-align: center;
+}
+
+/* Canvas Styling */
+canvas {
+  background: #011a31;
+  border: 3px solid #c75555;
+  border-radius: 12px;
+  box-shadow: 0px 8px 15px rgba(0,0,0,0.2);
+  width: 100%;
+  max-width: 800px;
+  height: auto;
+  display: block;
+  margin: 20px auto;
+}
+
+/* Buttons */
+button {
+  padding: 12px 24px;
+  font-size: 20px;
+  background-color: #2ecc71;
+  border: none;
+  border-radius: 10px;
+  color: rgb(255, 255, 255);
+  transition: background-color 0.3s ease, transform 0.1s ease;
+  margin: 10px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #27ae60;
+  transform: scale(1.05);
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* Hide Restart Button Initially */
+#restartBtn {
+  display: none;
+}
+
+/* Optional: Flashing Game Over Text */
+@keyframes flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+#gameOverText {
+  font-size: 28px;
+  color: rgb(255, 255, 255);
+  animation: flash 1s infinite;
+}
